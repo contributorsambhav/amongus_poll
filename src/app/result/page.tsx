@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { getFirestore, collection, query, orderBy, getDocs } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
-import "../../firebaseConfig";
+// import "../../firebaseConfig";
+import { db } from '../../firebaseConfig'; // Import the db instance from firebaseConfig
 
 const Page = () => {
   const [data, setData] = useState([]);
@@ -12,7 +13,7 @@ const Page = () => {
   useEffect(() => {
     const fetchDataFromFirestore = async () => {
       try {
-        const db = getFirestore();
+        // const db = getFirestore();
         const usersCollectionRef = collection(db, 'users');
 
         // Query all documents from the 'users' collection and order by 'votes' in descending order
