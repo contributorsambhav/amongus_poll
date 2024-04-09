@@ -5,8 +5,9 @@ import { Search } from '@/components/search'
 // import { UserCard } from '@/components/usersCard'
 import React,{useState,useEffect} from 'react'
 import {toast} from 'react-toastify';
-import '../../../firebaseConfig'; // Add this line prevent firebase not loading error
+// import '../../../firebaseConfig'; // Add this line prevent firebase not loading error
 import { getFirestore, addDoc, collection,doc,updateDoc,getDoc,where,getDocs,query } from "firebase/firestore"; 
+import firebase_app from '@/firebaseConfig';
 
 
 const Page = ({params}: {params: {pollId: string}}) => {
@@ -40,7 +41,7 @@ const filterData = (searchText:any) => {
   setUsers(filteredResults);
 };
 
-const db = getFirestore();
+const db = getFirestore(firebase_app);
 
 const fetchDataFromFirestore = async (userId:any) => {
   try {

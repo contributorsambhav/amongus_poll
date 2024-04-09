@@ -3,6 +3,7 @@ import Image from "next/image";
 // import { TeamScoreCard } from "@/components/teamScoreCard";
 // import { TeamDetailsCard } from "@/components/taskdetailscard";
 import { Column } from "@tanstack/react-table";
+import "../firebaseConfig"
 
 export default function Home() {
   return (
