@@ -59,10 +59,12 @@ const Page = () => {
 
   return (
     <div className='flex w-screen h-screen justify-center items-center text-white flex-col'>
-        <video id="backgroundVideo" autoPlay muted loop className='h-screen w-[100vw] absolute top-0 left-0 object-cover' style={{zIndex: -1}} suppressHydrationWarning>
-  <source src="/75318-555531864_large.mp4" type="video/mp4"/>
-  Your browser does not support the video tag.
-</video>
+         {typeof window !== 'undefined' && ( // Render video only on the client-side
+        <video id="backgroundVideo" autoPlay muted loop className="fixed top-0 left-0 object-cover w-full h-full" style={{ zIndex: -1 }}>
+          <source src="/75318-555531864_large.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      )}
     <h1 className='mb-[25px] text-2xl'>{message}</h1>
 
     {/* <p className='mb-[8px]'>#1  : 4 votes</p> */}
