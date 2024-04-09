@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card"
 // import { Switch } from "@/components/ui/switch"
 import React, { useState } from "react"
-import '../../src/app/firebaseConfig'; // Add this line prevent firebase not loading error
+import '../firebaseConfig'; // Add this line prevent firebase not loading error
 import { getFirestore, addDoc, collection,doc,updateDoc,getDoc,where,getDocs,query } from "firebase/firestore"; 
 import { set } from 'firebase/database';
 import {toast} from 'react-toastify';

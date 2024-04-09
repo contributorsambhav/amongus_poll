@@ -1,7 +1,7 @@
 'use client'
 
 import React,{useState,useEffect} from 'react'
-import '../firebaseConfig'; // Add this line prevent firebase not loading error
+import '../../firebaseConfig'; // Add this line prevent firebase not loading error
 import { getFirestore, addDoc, collection,doc,updateDoc,getDoc,where,getDocs,query,orderBy } from "firebase/firestore"; 
 import { set } from 'firebase/database';
 import { Loader2 } from "lucide-react"
