@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { getFirestore, collection, query, orderBy, getDocs } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
+import "../../firebaseConfig";
 
 const Page = () => {
   const [data, setData] = useState([]);
