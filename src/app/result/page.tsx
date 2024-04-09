@@ -4,6 +4,7 @@ import { getFirestore, collection, query, orderBy, getDocs } from 'firebase/fire
 import { Loader2 } from 'lucide-react';
 // import "../../firebaseConfig";
 import { db } from '../../firebaseConfig'; // Import the db instance from firebaseConfig
+import { get } from 'http';
 
 
 
@@ -15,7 +16,8 @@ const Page = () => {
   const fetchDataFromFirestore = async () => {
     try {
       console.log('Fetching data from Firestore...',db)
-      const usersCollectionRef = collection(db, 'users'); // Reference the 'users' collection
+      let db2=getFirestore();
+      const usersCollectionRef = collection(db2, 'users'); // Reference the 'users' collection
   
       // Query all documents from the 'users' collection and order by 'votes' in descending order
       const q = query(usersCollectionRef, orderBy('votes', 'desc'));
