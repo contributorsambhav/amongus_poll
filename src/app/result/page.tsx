@@ -1,4 +1,5 @@
 'use client'
+
 import React,{useState,useEffect} from 'react'
 import '../firebaseConfig'; // Add this line prevent firebase not loading error
 import { getFirestore, addDoc, collection,doc,updateDoc,getDoc,where,getDocs,query,orderBy } from "firebase/firestore"; 
@@ -59,7 +60,7 @@ const Page = () => {
 
   return (
     <div className='flex w-screen h-screen justify-center items-center text-white flex-col'>
-         {typeof window !== 'undefined' && ( // Render video only on the client-side
+         {typeof window !== undefined && ( // Render video only on the client-side
         <video id="backgroundVideo" autoPlay muted loop className="fixed top-0 left-0 object-cover w-full h-full" style={{ zIndex: -1 }}>
           <source src="/75318-555531864_large.mp4" type="video/mp4" />
           Your browser does not support the video tag.
