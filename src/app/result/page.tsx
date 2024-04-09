@@ -13,16 +13,15 @@ const Page = () => {
   useEffect(() => {
     const fetchDataFromFirestore = async () => {
       try {
-        // const db = getFirestore();
-        const usersCollectionRef = collection(db, 'users');
-
+        const usersCollectionRef = collection(db, 'users'); // Reference the 'users' collection
+    
         // Query all documents from the 'users' collection and order by 'votes' in descending order
         const q = query(usersCollectionRef, orderBy('votes', 'desc'));
         const querySnapshot = await getDocs(q);
-
+    
         // Extract data from querySnapshot into an array of user objects
         const users = querySnapshot.docs.map(doc => doc.data());
-
+    
         // Check the top two users to determine if they have the same highest votes
         let message = '';
         if (users.length >= 2 && users[0].votes === users[1].votes) {
@@ -30,13 +29,13 @@ const Page = () => {
         } else {
           message = `${users[0].name} has been removed.`;
         }
-
+    
         // Set the state with the top users
         setData(users);
-
+    
         // Set the message state
         setMessage(message);
-
+    
         // Set loading state to false
         setLoading(false);
       } catch (error) {
