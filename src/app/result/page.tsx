@@ -13,7 +13,7 @@ const Page = () => {
   useEffect(() => {
     const fetchDataFromFirestore = async () => {
       try {
-        console.log('Fetching data from Firestore...',b)
+        console.log('Fetching data from Firestore...',db)
         const usersCollectionRef = collection(db, 'users'); // Reference the 'users' collection
     
         // Query all documents from the 'users' collection and order by 'votes' in descending order
