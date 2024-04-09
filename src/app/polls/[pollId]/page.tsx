@@ -8,7 +8,7 @@ import {toast} from 'react-toastify';
 import { getFirestore, addDoc, collection,doc,updateDoc,getDoc,where,getDocs,query } from "firebase/firestore"; 
 
 
-const page = ({params}: {params: {pollId: string}}) => {
+const Page = ({params}: {params: {pollId: string}}) => {
  const userId =params.pollId;
  console.log("userid",userId);
 
@@ -107,4 +107,4 @@ const filteredUsers = users.filter((user:any) => {
     </>)
 }
 
-export default page
+export default Page

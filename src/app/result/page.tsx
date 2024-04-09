@@ -6,7 +6,7 @@ import { set } from 'firebase/database';
 import { Loader2 } from "lucide-react"
 
 
-const page = () => {
+const Page = () => {
 
     const [data, setData] = useState([]);
     const [message, setMessage] = useState('');
@@ -86,4 +86,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page
