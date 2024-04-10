@@ -18,7 +18,6 @@ import { getFirestore, addDoc, collection,doc,updateDoc,getDoc,where,getDocs,que
 import { set } from 'firebase/database';
 import {toast} from 'react-toastify';
 import TaskModal from "./TaskModal"
-import { ScoreCard } from "./ScoreCard"
 
 const notifications:any= [
  
@@ -26,13 +25,12 @@ const notifications:any= [
 
 type CardProps = React.ComponentProps<typeof Card>
 
-export function PollsCard({ className, ...props }: any) {
+export function MemberCard({ className, ...props }: any) {
   const {user,flag,setFlag,setUsers,users} = props;
   const [voted, setVoted] = useState(false);
   const [loading, setLoading] = useState(false);
 const [error, setError] = useState(false);
 const [open, setOpen] = useState(false);
-const [scoreModal, setScoreModal] = useState(false);
 
   const handleVote = (userId: number) => {
     const updatedData = users.map((user:any) =>
@@ -143,61 +141,11 @@ const decrementVote = async (personId:any) => {
 
 
   return (
-    <Card className={cn("w-[80vw] mb-[20px]", className)} {...props}>
+    <Card className={cn("w-[100%] mb-[20px]", className)} {...props}>
       <CardHeader>
-        <CardTitle>#30 Team_name</CardTitle>
-        <CardDescription>Score : 3000 || Tasks Completed : 3</CardDescription>
+        <CardTitle>Player_name</CardTitle>
+        <CardDescription>email : abcd@gmail.com</CardDescription>
       </CardHeader>
-      <CardContent className="grid gap-4">
-        {/* <div className=" flex items-center space-x-4 rounded-md border p-4">
-          <BellRing />
-          <div className="flex-1 space-y-1">
-            <p className="text-sm font-medium leading-none">
-              Push Notifications
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Send notifications to device.
-            </p>
-          </div>
-          <Switch />
-        </div> */}
-        <div>
-
-          {!loading && <>
-
-            <Button className="me-[15px]" onClick={()=>{
-              setOpen(true);
-            }} >
-              View Details
-            </Button>
-            <Button  onClick={()=>{
-              setScoreModal(true);
-            }}>
-              Add Score
-            </Button>
-
-            <TaskModal open={open} setOpen={setOpen}></TaskModal>
-
-            <ScoreCard scoreModal={scoreModal} setScoreModal={setScoreModal}></ScoreCard>
-          
-          
-          
-          </>}
-          {
-            loading && <Button className="bg-[#878B94] hover:bg-[#878B94]"> <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Please wait</Button>
-          }
-        
-        
-       
-
-        </div>
-      </CardContent>
-      {/* <CardFooter>
-        <Button className="w-full">
-          <Check className="mr-2 h-4 w-4" /> Mark all as read
-        </Button>
-      </CardFooter> */}
     </Card>
   )
 }
