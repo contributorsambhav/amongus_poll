@@ -109,7 +109,7 @@ const filteredUsers = users.filter((user:any) => {
       {filteredUsers.map((user:any) => (
         <PollsCard key={user.Email} user={user} flag={flag} setFlag={setFlag} setUsers={setUsers} users={users} />
       ))}
-      {filteredUsers.length === 0 && (
+      {!loading && filteredUsers.length === 0 && (
         <div className="text-lg text-gray-500 mt-[100px]">No users found</div>
       )}
 
