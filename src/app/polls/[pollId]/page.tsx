@@ -8,6 +8,8 @@ import {toast} from 'react-toastify';
 // import '../../../firebaseConfig'; // Add this line prevent firebase not loading error
 import { getFirestore, addDoc, collection,doc,updateDoc,getDoc,where,getDocs,query } from "firebase/firestore"; 
 import firebase_app from '@/firebaseConfig';
+// import { set } from 'firebase/database';
+import { Loader2 } from 'lucide-react';
 
 
 const Page = ({params}: {params: {pollId: string}}) => {
@@ -24,6 +26,7 @@ let initialData:any = [];
 const [users, setUsers] = useState([]);
 const [flag, setFlag] = useState(true);
 const [searchText, setSearchText] = useState('');
+const [loading, setLoading] = useState(false);
 
 
 const response = []
@@ -45,6 +48,7 @@ const db = getFirestore(firebase_app);
 
 const fetchDataFromFirestore = async (userId:any) => {
   try {
+    setLoading(true);
     const querySnapshot = await getDocs(collection(db, "users"));
     const temporaryArr:any = [];
 
@@ -61,9 +65,11 @@ const fetchDataFromFirestore = async (userId:any) => {
 
     // Set the state (users) with filtered data
     setUsers(filteredUsers); // Assuming setUsers is a state update function from React useState hook
+    setLoading(false);
   } catch (error) {
     console.error("Error fetching data from Firestore:", error);
     toast.error("Error fetching data from Firestore: " + error);
+    setLoading(false);
     // Handle error (e.g., show error message to user)
   }
 };
@@ -103,6 +109,15 @@ const filteredUsers = users.filter((user:any) => {
       {filteredUsers.length === 0 && (
         <div className="text-lg text-gray-500 mt-[100px]">No users found</div>
       )}
+
+      {loading && (
+        
+        <>
+          <Loader2 className="h-8 w-8 mb-3 animate-spin" />
+          <p>Loading...</p>
+        </>
+        )}
+      
       
       
     </div>

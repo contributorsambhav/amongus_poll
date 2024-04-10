@@ -18,7 +18,7 @@ export function Search({ filterData,initialData,setUsers,setSearchText,searchTex
   };
 
   return (
-    <div className="flex w-[80vw] space-x-2">
+    <div className="flex w-[80vw] items-center justify-center">
       <Input
         className="w-[70%]"
         type="text"
@@ -26,20 +26,7 @@ export function Search({ filterData,initialData,setUsers,setSearchText,searchTex
         value={searchText}
         onChange={handleInputChange}
       />
-      {!remove && <Button onClick={(e)=>{
-        e.preventDefault();
-        if(searchText.length>0){
-          handleSearch();
-          setRemove(true);
-        }
-      }}>Search</Button>}
-      {remove && <Button onClick={()=>{
-
-    
-        console.log("initialData",initialData);
-        setUsers(initialData);
-        setRemove(false);
-      }}>Remove</Button>}
+      
     </div>
   );
 }
