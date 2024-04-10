@@ -49,16 +49,18 @@ const [error, setError] = useState(false);
   //firebase write function
 const db = getFirestore();
 
-const incrementVote = async (personId:any) => {
-  const collectionRef:any = collection(db, "users");
+const incrementVote = async (personId:string) => {
+  const collectionRef:any = collection(db, "AllPlayers");
 
   try {
     // Query Firestore to find the document with matching id
     setError(false);
     setLoading(true);
-    const q = query(collectionRef, where("id", "==", personId));
+    console.log("personid",personId)
+    const q = query(collectionRef, where("Email", "==", personId));
     const querySnapshot:any= await getDocs(q);
-    
+    console.log("personId",personId);
+    console.log("querySnapshot",querySnapshot);
     if (!querySnapshot.empty) {
       // There should be only one document matching the id
       const docRef = querySnapshot.docs[0].ref;
@@ -89,13 +91,13 @@ const incrementVote = async (personId:any) => {
 
 
 const decrementVote = async (personId:any) => {
-  const collectionRef = collection(db, "users");
+  const collectionRef = collection(db, "AllPlayers");
 
   try {
     // Query Firestore to find the document with matching id
     setError(false);
     setLoading(true);
-    const q = query(collectionRef, where("id", "==", personId));
+    const q = query(collectionRef, where("Email", "==", personId));
     const querySnapshot = await getDocs(q);
     
     if (!querySnapshot.empty) {
@@ -141,7 +143,7 @@ const decrementVote = async (personId:any) => {
   return (
     <Card className={cn("w-[80vw] mb-[20px]", className)} {...props}>
       <CardHeader>
-        <CardTitle>{user.name}</CardTitle>
+        <CardTitle>{user.Name}</CardTitle>
         {/* <CardDescription>Votes : {user.votes}</CardDescription> */}
       </CardHeader>
       <CardContent className="grid gap-4">
@@ -162,25 +164,19 @@ const decrementVote = async (personId:any) => {
           {!loading && <>
 
             {!voted && flag && <> <Button onClick={async ()=>{
-            handleVote(user.id);
-            await incrementVote(user.id);
+            // handleVote(user.Email);
+            await incrementVote(user.Email);
             console.log("error",error);
-            if(!error){
-             
-
-            }
+          
             
          
             
           }}>Vote</Button></>}
 
           {voted && <> <Button variant="destructive" onClick={async()=>{
-              handleUnvote(user.id);
-              await decrementVote(user.id);
-              if(!error){
-                
-
-              }
+              // handleUnvote(user.id);
+              await decrementVote(user.Email);
+            
           
           
             

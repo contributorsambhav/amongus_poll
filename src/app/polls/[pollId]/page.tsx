@@ -37,8 +37,8 @@ const filterData = (searchText:any) => {
   const filteredResults = users.filter((user:any) => {
     const lowerCaseSearch = searchText.toLowerCase();
     return (
-      user.id.toString().includes(lowerCaseSearch) ||
-      user.name.toLowerCase().includes(lowerCaseSearch)
+      user.Email.toString().includes(lowerCaseSearch) ||
+      user.Name.toLowerCase().includes(lowerCaseSearch)
     );
   });
   setUsers(filteredResults);
@@ -49,7 +49,7 @@ const db = getFirestore(firebase_app);
 const fetchDataFromFirestore = async (userId:any) => {
   try {
     setLoading(true);
-    const querySnapshot = await getDocs(collection(db, "users"));
+    const querySnapshot = await getDocs(collection(db, "AllPlayers"));
     const temporaryArr:any = [];
 
     querySnapshot.forEach((doc) => {
@@ -58,7 +58,10 @@ const fetchDataFromFirestore = async (userId:any) => {
 
     // Filter the fetched data to exclude users with a specific userId
     console.log("temporaryArr", temporaryArr);
-    const filteredUsers = temporaryArr.filter((user:any) => user.id !== parseInt(userId));
+    const filteredUsers = temporaryArr.filter((user:any) => {
+      // Filter out users whose Email is not equal to userId and IsAlive is true
+      return user.Email !== userId && user.IsAlive === true;
+    });
 
     // Log filtered users (optional)
     console.log("filteredUsers", filteredUsers);
@@ -81,8 +84,8 @@ useEffect(() => {
 const filteredUsers = users.filter((user:any) => {
   const lowerSearchText = searchText.toLowerCase();
   return (
-    user.name.toLowerCase().includes(lowerSearchText) ||
-    user.id.toString().includes(lowerSearchText)
+    user.Name.toLowerCase().includes(lowerSearchText) ||
+    user.Email.toString().includes(lowerSearchText)
   );
 });
 
@@ -104,7 +107,7 @@ const filteredUsers = users.filter((user:any) => {
   </div>
     <div className='flex flex-col w-full items-center overflow-y-auto h-[85vh]'>
       {filteredUsers.map((user:any) => (
-        <PollsCard key={user.id} user={user} flag={flag} setFlag={setFlag} setUsers={setUsers} users={users} />
+        <PollsCard key={user.Email} user={user} flag={flag} setFlag={setFlag} setUsers={setUsers} users={users} />
       ))}
       {filteredUsers.length === 0 && (
         <div className="text-lg text-gray-500 mt-[100px]">No users found</div>
