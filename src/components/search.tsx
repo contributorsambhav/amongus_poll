@@ -18,15 +18,28 @@ export function Search({ filterData,initialData,setUsers,setSearchText,searchTex
   };
 
   return (
-    <div className="flex w-[80vw] items-center justify-center">
+    <div className="flex w-[80vw] space-x-2">
       <Input
         className="w-[70%]"
         type="text"
-        placeholder="Search here by team name..."
+        placeholder="Search here ..."
         value={searchText}
         onChange={handleInputChange}
       />
-     
+      {!remove && <Button onClick={(e)=>{
+        e.preventDefault();
+        if(searchText.length>0){
+          handleSearch();
+          setRemove(true);
+        }
+      }}>Search</Button>}
+      {remove && <Button onClick={()=>{
+
+    
+        console.log("initialData",initialData);
+        setUsers(initialData);
+        setRemove(false);
+      }}>Remove</Button>}
     </div>
   );
 }

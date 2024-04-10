@@ -17,8 +17,6 @@ import '../firebaseConfig'; // Add this line prevent firebase not loading error
 import { getFirestore, addDoc, collection,doc,updateDoc,getDoc,where,getDocs,query } from "firebase/firestore"; 
 import { set } from 'firebase/database';
 import {toast} from 'react-toastify';
-import TaskModal from "./TaskModal"
-import { ScoreCard } from "./ScoreCard"
 
 const notifications:any= [
  
@@ -31,8 +29,6 @@ export function PollsCard({ className, ...props }: any) {
   const [voted, setVoted] = useState(false);
   const [loading, setLoading] = useState(false);
 const [error, setError] = useState(false);
-const [open, setOpen] = useState(false);
-const [scoreModal, setScoreModal] = useState(false);
 
   const handleVote = (userId: number) => {
     const updatedData = users.map((user:any) =>
@@ -145,8 +141,8 @@ const decrementVote = async (personId:any) => {
   return (
     <Card className={cn("w-[80vw] mb-[20px]", className)} {...props}>
       <CardHeader>
-        <CardTitle>#30 Team_name</CardTitle>
-        <CardDescription>Score : 3000 || Tasks Completed : 3</CardDescription>
+        <CardTitle>{user.name}</CardTitle>
+        {/* <CardDescription>Votes : {user.votes}</CardDescription> */}
       </CardHeader>
       <CardContent className="grid gap-4">
         {/* <div className=" flex items-center space-x-4 rounded-md border p-4">
@@ -165,20 +161,40 @@ const decrementVote = async (personId:any) => {
 
           {!loading && <>
 
-            <Button className="me-[15px]" onClick={()=>{
-              setOpen(true);
-            }} >
-              View Details
-            </Button>
-            <Button  onClick={()=>{
-              setScoreModal(true);
-            }}>
-              Add Score
-            </Button>
+            {!voted && flag && <> <Button onClick={async ()=>{
+            handleVote(user.id);
+            await incrementVote(user.id);
+            console.log("error",error);
+            if(!error){
+             
 
-            <TaskModal open={open} setOpen={setOpen}></TaskModal>
+            }
+            
+         
+            
+          }}>Vote</Button></>}
 
-            <ScoreCard scoreModal={scoreModal} setScoreModal={setScoreModal}></ScoreCard>
+          {voted && <> <Button variant="destructive" onClick={async()=>{
+              handleUnvote(user.id);
+              await decrementVote(user.id);
+              if(!error){
+                
+
+              }
+          
+          
+            
+          }}>Remove Vote</Button></>}
+
+          {
+            !flag && !voted&&<Button className="bg-[#878B94] hover:bg-[#878B94]" onClick={()=>{
+              alert("You cant only vote one person at a time")
+            
+            }} >Vote</Button>
+          }
+
+
+          
           
           
           
