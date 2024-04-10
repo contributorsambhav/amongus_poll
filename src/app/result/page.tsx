@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { getFirestore, collection, query, orderBy, getDocs, doc, updateDoc,where,deleteDoc } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
 import firebase_app from '@/firebaseConfig';
+import { set } from 'firebase/database';
+import { toast } from 'react-toastify';
 
 const Page = () => {
   const [data, setData] = useState([]);
@@ -17,12 +19,14 @@ const Page = () => {
       const teamsCollectionRef = collection(db, 'Teams');
 
       const teamsQuerySnapshot = await getDocs(teamsCollectionRef);
+      console.log("teamsQuerySnapshotplayer",teamsQuerySnapshot)
 
       // Array to store deletion promises
       const deletionPromises = [];
 
       // Iterate through each team document
       teamsQuerySnapshot.forEach(async (teamDoc) => {
+        console.log("teamDocplayer",teamDoc)
         const teamId = teamDoc.id;
 
         // Reference to the 'players' subcollection of the current team document
@@ -47,6 +51,82 @@ const Page = () => {
     }
   };
 
+  const checkAndUpdateTeam = async (character:string, name:string, teamname:string,Email:string) => {
+    try {
+      const db = getFirestore(firebase_app);
+      console.log(teamname,character,name)
+  
+      // Query Firestore to get the team document based on TeamName
+      const teamsCollectionRef = collection(db, 'Teams');
+      const teamsQuerySnapshot = await getDocs(query(teamsCollectionRef, where('TeamName', '==', teamname)));
+  
+      // Check if team document with the specified TeamName existsTeamName
+      console.log("teamsQuerySnapshot",teamsQuerySnapshot)
+      if (!teamsQuerySnapshot.empty) {
+        const teamDoc = teamsQuerySnapshot.docs[0]; // Assuming there's only one team with this TeamName
+  
+        const teamId = teamDoc.id;
+        const playersCollectionRef = collection(teamDoc.ref, 'players');
+  
+        // Count the number of players in the team
+        const playersQuerySnapshot = await getDocs(playersCollectionRef);
+        const numberOfPlayers = playersQuerySnapshot.size;
+  
+        console.log(`Team ${teamId} has ${numberOfPlayers} players.`);
+  
+        // Check the player's character and update team state accordingly
+        if (character === 'crewmate') {
+          // If crewmate and team has 2 or fewer players, set isAlive to false
+          if (numberOfPlayers <= 3) {
+            await updateTeamStatus(teamId, false);
+            
+            console.log(`Team ${teamId} has been eliminated.`);
+            if (!toast.isActive('error-toast')) {
+              toast.error(`Team ${teamname} has been eliminated.`, { toastId: 'error-toast' });
+
+            }
+            
+          }
+          await deletePlayerByEmail(Email);
+          console.log(`${name} was a crewmate.`);
+        } else if (character === 'imposter') {
+         
+          // If imposter, set isAlive to false
+          await updateTeamStatus(teamId, false);
+          await deletePlayerByEmail(Email);
+          console.log(`Team ${teamId} has been eliminated.`);
+          if (!toast.isActive('error-toast')) {
+            toast.error(`Team ${teamname} has been eliminated.`, { toastId: 'error-toast' });
+
+          }
+          console.log(`${name} was an imposter.`);
+        } else {
+          console.log('Error checking and updating team: Invalid character');
+          return 'Error checking and updating team: Invalid character';
+        }
+  
+        return `${name} was an ${character}.`; // Return a message indicating the processing
+      } else {
+        // console.log(`Team with TeamName ${teamname} not found.`);
+        toast.error(`Team with TeamName ${teamname} not found.`);
+        return `Team with TeamName ${teamname} not found.`;
+      }
+    } catch (error) {
+      console.error('Error checking and updating team:', error);
+      return 'Error checking and updating team: ' + error.message;
+    }
+  };
+  
+
+  
+  
+  const updateTeamStatus = async (teamId: string, isAlive: boolean) => {
+    const db = getFirestore(firebase_app);
+    const teamDocRef = doc(db, 'Teams', teamId);
+    await updateDoc(teamDocRef, { isAlive });
+  };
+
+
   const fetchDataFromFirestore = async () => {
     try {
       const db = getFirestore(firebase_app);
@@ -58,6 +138,7 @@ const Page = () => {
       const users = querySnapshot.docs
   .map(doc => doc.data()) // Extract data from each document
   .filter(user => user.IsAlive === true);
+
    console.log("users",users)
       if(users.length === 0){
         setMessage('No users found');
@@ -72,10 +153,18 @@ const Page = () => {
         
 
         // Update the IsAlive field of the removed user
-        const userDocRef = doc(db, "AllPlayers", removedUser.Email); // Assuming each user document has an 'id' field
-        await updateDoc(userDocRef, { IsAlive: false });
-        await deletePlayerByEmail(removedUser.Email);
-        message = `${removedUser.Name} has been removed.`;
+        console.log("removedUser",removedUser)
+        const userDocRef = doc(db, "AllPlayers", removedUser.Email);
+        // Assuming each user document has an 'id' field
+        
+   
+        message = await checkAndUpdateTeam(removedUser.Character,removedUser.Name,removedUser.TeamName,removedUser.Email);
+        await updateDoc(userDocRef, { IsAlive: false }); 
+        
+        
+
+        // message = `${removedUser.Name} has been removed.`;
+
       }
 
       setData(users);
