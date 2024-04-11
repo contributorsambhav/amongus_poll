@@ -193,18 +193,27 @@ const Page = () => {
 
       <h1 className="mb-6 text-2xl">{message}</h1>
 
-      {!loading ? (
-        data.map((user, index) => (
-          <p key={index} className="mb-3">
-            #{index + 1} {user.Name} : {user.votes} votes
-          </p>
-        ))
-      ) : (
-        <>
-          <Loader2 className="h-8 w-8 mb-3 animate-spin " />
-          <p>Loading...</p>
-        </>
-      )}
+        <div className='h-[500px] overflow-y-auto'>
+      <h1 className="mb-6 text-2xl">{message}</h1>
+
+{!loading ? (
+  data.map((user, index) => (
+    <p key={index} className="mb-3">
+      #{index + 1} {user.Name} : {user.votes} votes
+    </p>
+  ))
+) : (
+  <>
+    <Loader2 className="h-8 w-8 mb-3 animate-spin " />
+    <p>Loading...</p>
+  </>
+)}
+
+
+
+
+
+      </div>
     </div>
   );
 };
