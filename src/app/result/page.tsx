@@ -182,7 +182,8 @@ const Page = () => {
   }, []);
 
   return (
-    <div className="flex w-screen h-screen justify-center items-center text-red flex-col relative">
+    <div className="flex w-screen h-screen justify-center items-center text-[red]
+      flex-col relative">
       {typeof window !== 'undefined' && (
         <video id="backgroundVideo" autoPlay muted loop className="fixed top-0 left-0 object-cover w-full h-full" style={{ zIndex: -1 }}>
           <source src="/75318-555531864_large.mp4" type="video/mp4" />
