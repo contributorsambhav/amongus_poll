@@ -182,7 +182,7 @@ const Page = () => {
   }, []);
 
   return (
-    <div className="flex w-screen h-screen justify-center items-center text-white flex-col relative">
+    <div className="flex w-screen h-screen justify-center items-center text-red flex-col relative">
       {typeof window !== 'undefined' && (
         <video id="backgroundVideo" autoPlay muted loop className="fixed top-0 left-0 object-cover w-full h-full" style={{ zIndex: -1 }}>
           <source src="/75318-555531864_large.mp4" type="video/mp4" />
@@ -200,7 +200,7 @@ const Page = () => {
         ))
       ) : (
         <>
-          <Loader2 className="h-8 w-8 mb-3 animate-spin" />
+          <Loader2 className="h-8 w-8 mb-3 animate-spin " />
           <p>Loading...</p>
         </>
       )}
