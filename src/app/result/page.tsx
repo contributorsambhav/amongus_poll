@@ -77,16 +77,16 @@ const Page = () => {
         // Check the player's character and update team state accordingly
         if (character === 'crewmate') {
           // If crewmate and team has 2 or fewer players, set isAlive to false
-          if (numberOfPlayers <= 3) {
-            await updateTeamStatus(teamId, false);
+          // if (numberOfPlayers <= 3) {
+          //   await updateTeamStatus(teamId, false);
             
-            console.log(`Team ${teamId} has been eliminated.`);
-            if (!toast.isActive('error-toast')) {
-              toast.error(`Team ${teamname} has been eliminated.`, { toastId: 'error-toast' });
+          //   console.log(`Team ${teamId} has been eliminated.`);
+          //   if (!toast.isActive('error-toast')) {
+          //     toast.error(`Team ${teamname} has been eliminated.`, { toastId: 'error-toast' });
 
-            }
+          //   }
             
-          }
+          // }
           await deletePlayerByEmail(Email);
           console.log(`${name} was a crewmate.`);
         } else if (character === 'imposter') {
