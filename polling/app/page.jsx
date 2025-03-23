@@ -31,7 +31,9 @@ export default function Home() {
   const scrollAreaRef = useRef(null);
 
   const connectToServer = () => {
-    socket.current = new WebSocket("ws://localhost:8080");
+    const urlParams = new URLSearchParams(window.location.search);
+  const userEmail = urlParams.get("email")?.trim() || "test-client";
+    socket.current = new WebSocket(`ws://localhost:8080?email=${userEmail}`);
 
     socket.current.onopen = () => {
       setConnected(true);
@@ -194,7 +196,9 @@ export default function Home() {
                             : "bg-gray-200 text-black rounded-bl-none"
                         }`}
                       >
+                      
                         {msg.text}
+                        
                       </div>
                     </div>
                   </div>

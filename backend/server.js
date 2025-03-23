@@ -1,6 +1,6 @@
 const WebSocket = require('ws');
 const http = require('http');
-
+const url = require('url');
 const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -25,8 +25,10 @@ let votingPeriod = 30;
 
 let votedClients = {};
 
-wss.on('connection', (ws) => {
-  const clientId = Math.random().toString(36).substr(2, 9);
+wss.on('connection', (ws,req) => {
+  const params = new URLSearchParams(url.parse(req.url).query);
+  const email = params.get("email");
+  const clientId = email || Math.random().toString(36).substr(2, 9);
   clients.set(clientId, ws);
   console.log(`Client connected: ${clientId}`);
   ws.send(JSON.stringify({ type: "your_id", clientId }));
