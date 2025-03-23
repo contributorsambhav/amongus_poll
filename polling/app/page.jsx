@@ -1,17 +1,18 @@
 "use client";
-
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import clsx from "clsx";
+// import {
+//   Card,
+//   CardContent,
+//   CardFooter,
+//   CardHeader,
+//   CardTitle,
+// } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { SendHorizonal } from "lucide-react";
 
 export default function Home() {
   const [messages, setMessages] = useState([]);
@@ -133,95 +134,103 @@ export default function Home() {
     <div className="container mx-auto max-w-md p-4">
       <div className="flex justify-end mb-4">
         {!connected ? (
-          <Button onClick={connectToServer}>Connect</Button>
+          <Button onClick={connectToServer} className="cursor-pointer h-7 text-xs bg-green-600 hover:opacity-90 hover:bg-green-600 transition-all duration-200 ease-out">Connect</Button>
         ) : (
-          <Button onClick={disconnectFromServer} variant="outline">
+          <Button onClick={disconnectFromServer} className="cursor-pointer h-7 text-white hover:text-white text-xs bg-red-600 hover:opacity-90 hover:bg-red-600 transition-all duration-200 ease-out" variant="outline">
             Disconnect
           </Button>
         )}
       </div>
 
-      <Card className="w-full">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>WebSocket Chat</CardTitle>
-            <Badge variant={connected ? "success" : "destructive"}>
+      <div className="w-full border p-3 rounded-md">
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="font-semibold">Among Us Chat</h2>
+            <Badge variant={connected ? "success" : "destructive"} className={clsx("text-xs", connected ? "bg-green-100 border border-green-600 text-green-700" : "bg-red-100 border border-red-600 text-red-700")}>
               {connected ? "Connected" : "Disconnected"}
             </Badge>
           </div>
-          <div className="text-sm text-gray-500">
+          <div className="text-xs text-gray-500">
             {clientId && `Your Client ID: ${clientId}`}
           </div>
-          <div className="text-sm text-gray-500">
+          <div className="text-xs text-gray-500">
             {connected && `${clients.length} client(s) connected`}
           </div>
           {initialCountdown !== null && initialCountdown > 0 && (
-            <div className="text-sm text-blue-600 mt-2">
+            <div className="text-xs text-blue-600 mt-2">
               Voting will start in {initialCountdown} second
               {initialCountdown !== 1 ? "s" : ""}.
             </div>
           )}
           {voting && votingTimeLeft !== null && (
-            <div className="text-sm text-red-600 mt-2">
+            <div className="text-xs text-red-600 mt-2">
               Voting ends in {votingTimeLeft} second
               {votingTimeLeft !== 1 ? "s" : ""}.
             </div>
           )}
-        </CardHeader>
+        </div>
 
-        <CardContent>
+        <div>
           <ScrollArea
-            className="h-64 rounded-md border p-4"
+            className="h-[60vh] relative"
             ref={scrollAreaRef}
           >
-            {messages.length === 0 ? (
-              <div className="text-center text-gray-500 py-8">
-                No messages yet.
-              </div>
-            ) : (
-              messages.map((msg) => (
-                <div key={msg.id} className="mb-2">
-                  <div
-                    className={`flex ${
-                      msg.type === "sent" ? "justify-end" : "justify-start"
-                    }`}
-                  >
+            <div className="p-4 pb-20">
+              {messages.length === 0 ? (
+                <div className="text-center text-gray-500 py-8">
+                  No messages yet.
+                </div>
+              ) : (
+                messages.map((msg) => (
+                  <div key={msg.id} className="mb-2">
                     <div
-                      className={`px-3 py-2 rounded-lg max-w-xs text-sm ${
-                        msg.type === "sent"
-                          ? "bg-blue-500 text-white"
-                          : "bg-gray-200 text-black"
+                      className={`flex ${
+                        msg.type === "sent" ? "justify-end" : "justify-start"
                       }`}
                     >
-                      {msg.text}
+                      <div
+                        className={`px-3 py-1.5 rounded-lg max-w-xs text-xs ${
+                          msg.type === "sent"
+                            ? "bg-blue-600 text-white rounded-br-none"
+                            : "bg-gray-200 text-black rounded-bl-none"
+                        }`}
+                      >
+                        {msg.text}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
-            )}
-          </ScrollArea>
-        </CardContent>
-
-        <CardFooter className="flex flex-col gap-4">
-          <div className="flex w-full gap-2">
+                ))
+              )}
+            </div>
+            <div className="flex flex-col gap-4">
+          <div className="flex w-full gap-2 bg-white absolute bottom-0 p-4">
             <Input
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Type a message..."
               disabled={!connected || voting}
+              className="shadow-none bg-neutral-50/30 border focus-visible:ring-0 text-neutral-700 text-xs"
               onKeyDown={(e) => {
                 if (e.key === "Enter") sendMessage();
               }}
             />
             <Button
               onClick={sendMessage}
+              className="cursor-pointer bg-blue-700 hover:bg-blue-700 transition-all duration-200 ease-out flex gap-1"
               disabled={!connected || voting || !message.trim()}
             >
-              Send
+              <p className="font-normal">
+                Send
+              </p>
+              <SendHorizonal size={16} />
             </Button>
           </div>
-        </CardFooter>
-      </Card>
+        </div>
+          </ScrollArea>
+        </div>
+
+        
+      </div>
 
       <div className="mt-4">
         <h2 className="text-lg font-bold">Connected Clients</h2>
@@ -229,7 +238,7 @@ export default function Home() {
           clients.map((id) => (
             <div
               key={id}
-              className="flex justify-between items-center p-2 border rounded-md mt-2"
+              className="flex text-sm justify-between items-center px-2 py-1.5 border rounded-md mt-2"
             >
               <span>
                 Client ID: {id} {id === clientId ? "(You)" : ""}
@@ -242,6 +251,7 @@ export default function Home() {
               <Button
                 onClick={() => voteForClient(id)}
                 disabled={id === clientId || !voting || hasVoted}
+                className="h-7 text-xs cursor-pointer"
               >
                 Vote
               </Button>
