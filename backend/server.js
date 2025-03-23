@@ -20,7 +20,7 @@ let votes = {};
 let votingActive = false;
 let initialCountdownTimer = null;
 let votingCountdownTimer = null;
-let initialCountdown = 10; 
+let initialCountdown = 90; // Full 90 seconds for chat before voting
 let votingPeriod = 30; 
 
 let votedClients = {};
@@ -38,22 +38,22 @@ wss.on('connection', (ws) => {
     if (data.type === "message") {
       broadcast({ type: "message", text: data.text, senderId: clientId }, ws);
     } 
-
     else if (data.type === "initiate_voting") {
       if (!votingActive) {
         votingActive = true;
         votes = {};       
         votedClients = {}; 
 
+        // Send voting initiated message with full 90-second countdown
         broadcast({ type: "voting_initiated", countdown: initialCountdown });
 
-        initialCountdown = 10;
+        // Start countdown from 90 seconds
+        let countdown = initialCountdown;
         initialCountdownTimer = setInterval(() => {
-          initialCountdown--;
-          broadcast({ type: "voting_countdown", countdown: initialCountdown });
-          if (initialCountdown <= 0) {
+          countdown--;
+          broadcast({ type: "voting_countdown", countdown });
+          if (countdown <= 0) {
             clearInterval(initialCountdownTimer);
-
             broadcast({ type: "start_voting", votingPeriod });
 
             let timeLeft = votingPeriod;
@@ -70,7 +70,6 @@ wss.on('connection', (ws) => {
       }
     } 
     else if (data.type === "vote" && votingActive) {
-
       if (votedClients[clientId]) {
         return;
       }
@@ -87,6 +86,24 @@ wss.on('connection', (ws) => {
     clients.delete(clientId);
     console.log(`Client disconnected: ${clientId}`);
     broadcastClients();
+
+    // When all clients disconnect, reset voting state and countdown timers
+    if (clients.size === 0) {
+      votingActive = false;
+      votes = {};
+      votedClients = {};
+      if (initialCountdownTimer) {
+        clearInterval(initialCountdownTimer);
+        initialCountdownTimer = null;
+      }
+      if (votingCountdownTimer) {
+        clearInterval(votingCountdownTimer);
+        votingCountdownTimer = null;
+      }
+      // Reset initial countdown back to full 90 seconds for new connections
+      initialCountdown = 90;
+      console.log('All clients disconnected. Voting state and countdown reset to full 90 seconds.');
+    }
   });
 
   ws.on('error', (error) => {
@@ -112,21 +129,41 @@ function broadcastClients() {
 function endVoting() {
   votingActive = false;
   broadcast({ type: "stop_voting" });
+  
   let maxVotes = 0;
-  let eliminatedClient = null;
-  for (const [clientId, count] of Object.entries(votes)) {
+  for (const count of Object.values(votes)) {
     if (count > maxVotes) {
       maxVotes = count;
-      eliminatedClient = clientId;
     }
   }
-  if (eliminatedClient && clients.has(eliminatedClient)) {
-    console.log(`Eliminating client: ${eliminatedClient} with ${maxVotes} votes`);
-    clients.get(eliminatedClient).close();
-    clients.delete(eliminatedClient);
-    broadcastClients();
+
+  const clientsWithMax = Object.entries(votes).filter(
+    ([clientId, count]) => count === maxVotes
+  );
+
+  let systemMessage = "";
+
+  if (clientsWithMax.length === 1) {
+    const [eliminatedClient] = clientsWithMax[0];
+    if (clients.has(eliminatedClient)) {
+      systemMessage = `Eliminating client: ${eliminatedClient} with ${maxVotes} votes.`;
+      console.log(systemMessage);
+      clients.get(eliminatedClient).close();
+      clients.delete(eliminatedClient);
+      broadcastClients();
+    }
+  } else {
+    systemMessage = `Tie detected among clients: ${clientsWithMax.map(([id]) => id).join(", ")}. No elimination.`;
+    console.log(systemMessage);
   }
-  votes = {};
+
+  broadcast({ type: "message", text: systemMessage });
+  
+  for (const [clientId, clientSocket] of clients.entries()) {
+    clientSocket.close();
+  }
+  clients.clear();
+  broadcastClients();
 }
 
 const PORT = process.env.PORT || 8080;

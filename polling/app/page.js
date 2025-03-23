@@ -3,7 +3,13 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -15,9 +21,10 @@ export default function Home() {
   const [clients, setClients] = useState([]);
   const [voting, setVoting] = useState(false);
   const [voteCounts, setVoteCounts] = useState({});
-  const [initialCountdown, setInitialCountdown] = useState(null); 
-  const [votingTimeLeft, setVotingTimeLeft] = useState(null); 
-  const [hasVoted, setHasVoted] = useState(false); 
+  const [initialCountdown, setInitialCountdown] = useState(null);
+  const [votingTimeLeft, setVotingTimeLeft] = useState(null);
+  const [hasVoted, setHasVoted] = useState(false);
+  const [autoVotingInitiated, setAutoVotingInitiated] = useState(false);
 
   const socket = useRef(null);
   const scrollAreaRef = useRef(null);
@@ -38,7 +45,6 @@ export default function Home() {
       } else if (data.type === "client_list") {
         setClients(data.clients);
       } else if (data.type === "voting_initiated") {
-
         setInitialCountdown(data.countdown);
         addMessage("Voting will start soon.", "system");
       } else if (data.type === "voting_countdown") {
@@ -47,14 +53,16 @@ export default function Home() {
         setInitialCountdown(null);
         setVoting(true);
         setVotingTimeLeft(data.votingPeriod);
-        addMessage("Voting has started. You have 30 seconds to vote.", "system");
+        addMessage(
+          "Voting has started. You have 30 seconds to vote.",
+          "system"
+        );
       } else if (data.type === "voting_time_left") {
         setVotingTimeLeft(data.timeLeft);
       } else if (data.type === "stop_voting") {
         setVoting(false);
         setVotingTimeLeft(null);
         addMessage("Voting has ended.", "system");
-
         setHasVoted(false);
       } else if (data.type === "vote_update") {
         setVoteCounts(data.voteCounts);
@@ -74,7 +82,10 @@ export default function Home() {
       socket.current.close();
       socket.current = null;
     }
+    setConnected(false);
+    setAutoVotingInitiated(false);
   };
+  
 
   const addMessage = (text, type) => {
     const newMessage = { id: Date.now(), text, type };
@@ -88,7 +99,9 @@ export default function Home() {
 
   const sendMessage = () => {
     if (socket.current && message.trim() && connected && !voting) {
-      socket.current.send(JSON.stringify({ type: "message", text: message, senderId: clientId }));
+      socket.current.send(
+        JSON.stringify({ type: "message", text: message, senderId: clientId })
+      );
       addMessage(message, "sent");
       setMessage("");
     }
@@ -97,9 +110,9 @@ export default function Home() {
   const initiateVoting = () => {
     if (socket.current && connected && !voting) {
       socket.current.send(JSON.stringify({ type: "initiate_voting" }));
-      addMessage("You have initiated voting.", "system");
-
+      addMessage("Voting has been initiated.", "system");
       setHasVoted(false);
+      setAutoVotingInitiated(true);
     }
   };
 
@@ -110,9 +123,14 @@ export default function Home() {
     }
   };
 
+  useEffect(() => {
+    if (connected && clientId && clients.length === 1 && !autoVotingInitiated) {
+      initiateVoting();
+    }
+  }, [connected, clientId, clients, autoVotingInitiated]);
+
   return (
     <div className="container mx-auto max-w-md p-4">
-      {}
       <div className="flex justify-end mb-4">
         {!connected ? (
           <Button onClick={connectToServer}>Connect</Button>
@@ -139,24 +157,35 @@ export default function Home() {
           </div>
           {initialCountdown !== null && initialCountdown > 0 && (
             <div className="text-sm text-blue-600 mt-2">
-              Voting will start in {initialCountdown} second{initialCountdown !== 1 ? "s" : ""}.
+              Voting will start in {initialCountdown} second
+              {initialCountdown !== 1 ? "s" : ""}.
             </div>
           )}
           {voting && votingTimeLeft !== null && (
             <div className="text-sm text-red-600 mt-2">
-              Voting ends in {votingTimeLeft} second{votingTimeLeft !== 1 ? "s" : ""}.
+              Voting ends in {votingTimeLeft} second
+              {votingTimeLeft !== 1 ? "s" : ""}.
             </div>
           )}
         </CardHeader>
 
         <CardContent>
-          <ScrollArea className="h-64 rounded-md border p-4" ref={scrollAreaRef}>
+          <ScrollArea
+            className="h-64 rounded-md border p-4"
+            ref={scrollAreaRef}
+          >
             {messages.length === 0 ? (
-              <div className="text-center text-gray-500 py-8">No messages yet.</div>
+              <div className="text-center text-gray-500 py-8">
+                No messages yet.
+              </div>
             ) : (
               messages.map((msg) => (
                 <div key={msg.id} className="mb-2">
-                  <div className={`flex ${msg.type === "sent" ? "justify-end" : "justify-start"}`}>
+                  <div
+                    className={`flex ${
+                      msg.type === "sent" ? "justify-end" : "justify-start"
+                    }`}
+                  >
                     <div
                       className={`px-3 py-2 rounded-lg max-w-xs text-sm ${
                         msg.type === "sent"
@@ -179,23 +208,18 @@ export default function Home() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Type a message..."
-              disabled={!connected || voting || initialCountdown !== null}
+              disabled={!connected || voting}
               onKeyDown={(e) => {
                 if (e.key === "Enter") sendMessage();
               }}
             />
             <Button
               onClick={sendMessage}
-              disabled={!connected || voting || !message.trim() || initialCountdown !== null}
+              disabled={!connected || voting || !message.trim()}
             >
               Send
             </Button>
           </div>
-          {!voting && initialCountdown === null && connected && (
-            <Button onClick={initiateVoting} variant="secondary">
-              Initiate Voting
-            </Button>
-          )}
         </CardFooter>
       </Card>
 
@@ -215,7 +239,10 @@ export default function Home() {
                   </span>
                 )}
               </span>
-              <Button onClick={() => voteForClient(id)} disabled={id === clientId || !voting || hasVoted}>
+              <Button
+                onClick={() => voteForClient(id)}
+                disabled={id === clientId || !voting || hasVoted}
+              >
                 Vote
               </Button>
             </div>
