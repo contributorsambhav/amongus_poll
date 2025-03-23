@@ -154,7 +154,7 @@ export default function Home() {
             {clientId && `Your Client ID: ${clientId}`}
           </div>
           <div className="text-xs text-gray-500">
-            {connected && `${clients.length} client(s) connected`}
+            {connected && `${clients.length} users connected`}
           </div>
           {initialCountdown !== null && initialCountdown > 0 && (
             <div className="text-xs text-blue-600 mt-2">
@@ -171,11 +171,10 @@ export default function Home() {
         </div>
 
         <div>
-          <ScrollArea
+          <div
             className="h-[60vh] relative"
-            ref={scrollAreaRef}
           >
-            <div className="p-4 pb-20">
+            <ScrollArea className="py-4 px-1 pb-12 h-[60vh]" ref={scrollAreaRef}>
               {messages.length === 0 ? (
                 <div className="text-center text-gray-500 py-8">
                   No messages yet.
@@ -201,9 +200,9 @@ export default function Home() {
                   </div>
                 ))
               )}
-            </div>
+            </ScrollArea>
             <div className="flex flex-col gap-4">
-          <div className="flex w-full gap-2 bg-white absolute bottom-0 p-4">
+          <div className="flex w-full gap-2 bg-white absolute bottom-0">
             <Input
               value={message}
               onChange={(e) => setMessage(e.target.value)}
@@ -219,44 +218,43 @@ export default function Home() {
               className="cursor-pointer bg-blue-700 hover:bg-blue-700 transition-all duration-200 ease-out flex gap-1"
               disabled={!connected || voting || !message.trim()}
             >
-              <p className="font-normal">
-                Send
-              </p>
               <SendHorizonal size={16} />
             </Button>
           </div>
         </div>
-          </ScrollArea>
+          </div>
         </div>
 
         
       </div>
 
       <div className="mt-4">
-        <h2 className="text-lg font-bold">Connected Clients</h2>
+        <h2 className="text-lg font-normal">Connected Clients</h2>
         {clients.length > 0 ? (
-          clients.map((id) => (
-            <div
-              key={id}
-              className="flex text-sm justify-between items-center px-2 py-1.5 border rounded-md mt-2"
-            >
-              <span>
-                Client ID: {id} {id === clientId ? "(You)" : ""}
-                {voting && (
-                  <span className="ml-2 text-sm text-gray-600">
-                    Votes: {voteCounts[id] || 0}
-                  </span>
-                )}
-              </span>
-              <Button
-                onClick={() => voteForClient(id)}
-                disabled={id === clientId || !voting || hasVoted}
-                className="h-7 text-xs cursor-pointer"
+          <div className="h-36 overflow-y-auto mt-3">
+            {clients.map((id) => (
+              <div
+                key={id}
+                className="flex text-sm justify-between items-center px-2 py-1.5 border rounded-md mt-2"
               >
-                Vote
-              </Button>
-            </div>
-          ))
+                <span>
+                  Client ID: {id} {id === clientId ? "(You)" : ""}
+                  {voting && (
+                    <span className="ml-2 text-sm text-gray-600">
+                      Votes: {voteCounts[id] || 0}
+                    </span>
+                  )}
+                </span>
+                <Button
+                  onClick={() => voteForClient(id)}
+                  disabled={id === clientId || !voting || hasVoted}
+                  className="h-7 text-xs cursor-pointer"
+                >
+                  Vote
+                </Button>
+              </div>
+            ))}
+          </div>
         ) : (
           <p className="text-gray-500">No clients connected.</p>
         )}
