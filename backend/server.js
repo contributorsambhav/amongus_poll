@@ -28,7 +28,7 @@ let votedClients = {};
 wss.on('connection', (ws,req) => {
   const params = new URLSearchParams(url.parse(req.url).query);
   const email = params.get("email");
-  const clientId = email || Math.random().toString(36).substr(2, 9);
+  const clientId = email.split('@')[0] || Math.random().toString(36).substr(2, 9);
   clients.set(clientId, ws);
   console.log(`Client connected: ${clientId}`);
   ws.send(JSON.stringify({ type: "your_id", clientId }));
