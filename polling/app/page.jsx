@@ -69,9 +69,10 @@ export default function Home() {
         setHasVoted(false);
       } else if (data.type === "vote_update") {
         setVoteCounts(data.voteCounts);
-      } else if (data.type === "message") {
-        addMessage(data.text, data.senderId === clientId ? "sent" : "received");
+      }else if (data.type === "message") {
+        addMessage(data.text, data.senderId === clientId ? "sent" : "received", data.senderId);
       }
+      
     };
 
     socket.current.onclose = () => {
@@ -90,9 +91,11 @@ export default function Home() {
   };
   
 
-  const addMessage = (text, type) => {
-    const newMessage = { id: Date.now(), text, type };
+  const addMessage = (text, type, senderId = null) => {
+    const newMessage = { id: Date.now(), text, type, senderId };
     setMessages((prev) => [...prev, newMessage]);
+  
+  
     setTimeout(() => {
       if (scrollAreaRef.current) {
         scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
@@ -105,10 +108,11 @@ export default function Home() {
       socket.current.send(
         JSON.stringify({ type: "message", text: message, senderId: clientId })
       );
-      addMessage(message, "sent");
+      addMessage(message, "sent", clientId);
       setMessage("");
     }
   };
+  
 
   const initiateVoting = () => {
     if (socket.current && connected && !voting) {
@@ -196,9 +200,13 @@ export default function Home() {
                             : "bg-gray-200 text-black rounded-bl-none"
                         }`}
                       >
-                      
+                        {msg.senderId && (
+                          <>
+                            {msg.senderId}
+                            <br />
+                          </>
+                        )}
                         {msg.text}
-                        
                       </div>
                     </div>
                   </div>
