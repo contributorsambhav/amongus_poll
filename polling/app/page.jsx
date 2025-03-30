@@ -34,7 +34,8 @@ export default function Home() {
     const urlParams = new URLSearchParams(window.location.search);
     const userEmail = urlParams.get("email")?.trim() || "test-client";
     // TODO: check here if user is present in the firebase if is present then only connect that user in system
-    socket.current = new WebSocket(`ws://localhost:8080?email=${userEmail}`);
+    socket.current = new WebSocket(`wss://amongus-poll-1.onrender.com?email=${userEmail}`);
+    
 
     socket.current.onopen = () => {
       setConnected(true);
