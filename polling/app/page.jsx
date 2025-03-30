@@ -32,7 +32,8 @@ export default function Home() {
 
   const connectToServer = () => {
     const urlParams = new URLSearchParams(window.location.search);
-  const userEmail = urlParams.get("email")?.trim() || "test-client";
+    const userEmail = urlParams.get("email")?.trim() || "test-client";
+    // TODO: check here if user is present in the firebase if is present then only connect that user in system
     socket.current = new WebSocket(`ws://localhost:8080?email=${userEmail}`);
 
     socket.current.onopen = () => {
@@ -58,7 +59,7 @@ export default function Home() {
         setVotingTimeLeft(data.votingPeriod);
         addMessage(
           "Voting has started. You have 30 seconds to vote.",
-          "system"
+          "system",
         );
       } else if (data.type === "voting_time_left") {
         setVotingTimeLeft(data.timeLeft);
@@ -69,10 +70,13 @@ export default function Home() {
         setHasVoted(false);
       } else if (data.type === "vote_update") {
         setVoteCounts(data.voteCounts);
-      }else if (data.type === "message") {
-        addMessage(data.text, data.senderId === clientId ? "sent" : "received", data.senderId);
+      } else if (data.type === "message") {
+        addMessage(
+          data.text,
+          data.senderId === clientId ? "sent" : "received",
+          data.senderId,
+        );
       }
-      
     };
 
     socket.current.onclose = () => {
@@ -89,13 +93,11 @@ export default function Home() {
     setConnected(false);
     setAutoVotingInitiated(false);
   };
-  
 
   const addMessage = (text, type, senderId = null) => {
     const newMessage = { id: Date.now(), text, type, senderId };
     setMessages((prev) => [...prev, newMessage]);
-  
-  
+
     setTimeout(() => {
       if (scrollAreaRef.current) {
         scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
@@ -106,13 +108,12 @@ export default function Home() {
   const sendMessage = () => {
     if (socket.current && message.trim() && connected && !voting) {
       socket.current.send(
-        JSON.stringify({ type: "message", text: message, senderId: clientId })
+        JSON.stringify({ type: "message", text: message, senderId: clientId }),
       );
       addMessage(message, "sent", clientId);
       setMessage("");
     }
   };
-  
 
   const initiateVoting = () => {
     if (socket.current && connected && !voting) {
@@ -140,9 +141,18 @@ export default function Home() {
     <div className="container mx-auto max-w-md p-4">
       <div className="flex justify-end mb-4">
         {!connected ? (
-          <Button onClick={connectToServer} className="cursor-pointer h-7 text-xs bg-green-600 hover:opacity-90 hover:bg-green-600 transition-all duration-200 ease-out">Connect</Button>
+          <Button
+            onClick={connectToServer}
+            className="cursor-pointer h-7 text-xs bg-green-600 hover:opacity-90 hover:bg-green-600 transition-all duration-200 ease-out"
+          >
+            Connect
+          </Button>
         ) : (
-          <Button onClick={disconnectFromServer} className="cursor-pointer h-7 text-white hover:text-white text-xs bg-red-600 hover:opacity-90 hover:bg-red-600 transition-all duration-200 ease-out" variant="outline">
+          <Button
+            onClick={disconnectFromServer}
+            className="cursor-pointer h-7 text-white hover:text-white text-xs bg-red-600 hover:opacity-90 hover:bg-red-600 transition-all duration-200 ease-out"
+            variant="outline"
+          >
             Disconnect
           </Button>
         )}
@@ -152,7 +162,15 @@ export default function Home() {
         <div>
           <div className="flex items-center justify-between mb-2">
             <h2 className="font-semibold">Among Us Chat</h2>
-            <Badge variant={connected ? "success" : "destructive"} className={clsx("text-xs", connected ? "bg-green-100 border border-green-600 text-green-700" : "bg-red-100 border border-red-600 text-red-700")}>
+            <Badge
+              variant={connected ? "success" : "destructive"}
+              className={clsx(
+                "text-xs",
+                connected
+                  ? "bg-green-100 border border-green-600 text-green-700"
+                  : "bg-red-100 border border-red-600 text-red-700",
+              )}
+            >
               {connected ? "Connected" : "Disconnected"}
             </Badge>
           </div>
@@ -177,10 +195,11 @@ export default function Home() {
         </div>
 
         <div>
-          <div
-            className="h-[60vh] relative"
-          >
-            <ScrollArea className="py-4 px-1 pb-12 h-[60vh]" ref={scrollAreaRef}>
+          <div className="h-[60vh] relative">
+            <ScrollArea
+              className="py-4 px-1 pb-12 h-[60vh]"
+              ref={scrollAreaRef}
+            >
               {messages.length === 0 ? (
                 <div className="text-center text-gray-500 py-8">
                   No messages yet.
@@ -194,15 +213,15 @@ export default function Home() {
                       }`}
                     >
                       <div
-                        className={`px-3 py-1.5 rounded-lg max-w-xs text-xs ${
+                        className={`px-3 py-1.5 font-medium rounded-lg max-w-[18rem] text-[0.8rem] ${
                           msg.type === "sent"
-                            ? "bg-blue-600 text-white rounded-br-none"
+                            ? "bg-green-400 text-white rounded-br-none"
                             : "bg-gray-200 text-black rounded-bl-none"
                         }`}
                       >
                         {msg.senderId && (
                           <>
-                            {msg.senderId.split('@')[0]}
+                            {msg.senderId}
                             <br />
                           </>
                         )}
@@ -214,30 +233,28 @@ export default function Home() {
               )}
             </ScrollArea>
             <div className="flex flex-col gap-4">
-          <div className="flex w-full gap-2 bg-white absolute bottom-0">
-            <Input
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Type a message..."
-              disabled={!connected || voting}
-              className="shadow-none bg-neutral-50/30 border focus-visible:ring-0 text-neutral-700 text-xs"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") sendMessage();
-              }}
-            />
-            <Button
-              onClick={sendMessage}
-              className="cursor-pointer bg-blue-700 hover:bg-blue-700 transition-all duration-200 ease-out flex gap-1"
-              disabled={!connected || voting || !message.trim()}
-            >
-              <SendHorizonal size={16} />
-            </Button>
+              <div className="flex w-full gap-2 bg-white absolute bottom-0">
+                <Input
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Type a message..."
+                  disabled={!connected || voting}
+                  className="shadow-none bg-neutral-50/30 border focus-visible:ring-0 text-neutral-700 text-xs"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") sendMessage();
+                  }}
+                />
+                <Button
+                  onClick={sendMessage}
+                  className="cursor-pointer bg-blue-700 hover:bg-blue-700 transition-all duration-200 ease-out flex gap-1"
+                  disabled={!connected || voting || !message.trim()}
+                >
+                  <SendHorizonal size={16} />
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
-          </div>
-        </div>
-
-        
       </div>
 
       <div className="mt-4">
