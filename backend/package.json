@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "firebase": "^11.5.0",
+    "firebase-cli": "^1.2.0",
     "ws": "^8.18.1"
   }
 }

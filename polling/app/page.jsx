@@ -157,7 +157,7 @@ export default function Home() {
             </Badge>
           </div>
           <div className="text-xs text-gray-500">
-            {clientId && `Your Client ID: ${clientId}`}
+            {clientId && `Your Client ID: ${clientId.split('@')[0]}`}
           </div>
           <div className="text-xs text-gray-500">
             {connected && `${clients.length} users connected`}
@@ -202,7 +202,7 @@ export default function Home() {
                       >
                         {msg.senderId && (
                           <>
-                            {msg.senderId}
+                            {msg.senderId.split('@')[0]}
                             <br />
                           </>
                         )}
@@ -250,7 +250,7 @@ export default function Home() {
                 className="flex text-sm justify-between items-center px-2 py-1.5 border rounded-md mt-2"
               >
                 <span>
-                  Client ID: {id} {id === clientId ? "(You)" : ""}
+                  Client ID: {id.split('@')[0]} {id === clientId ? "(You)" : ""}
                   {voting && (
                     <span className="ml-2 text-sm text-gray-600">
                       Votes: {voteCounts[id] || 0}

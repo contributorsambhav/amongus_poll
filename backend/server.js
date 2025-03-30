@@ -1,6 +1,11 @@
 const WebSocket = require('ws');
 const http = require('http');
 const url = require('url');
+const firebase_app = require("./firebaseConfig");
+const  { getFirestore, doc, updateDoc } = require("firebase/firestore/lite");
+const db = getFirestore(firebase_app);
+
+
 const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -28,7 +33,7 @@ let votedClients = {};
 wss.on('connection', (ws,req) => {
   const params = new URLSearchParams(url.parse(req.url).query);
   const email = params.get("email");
-  const clientId = email.split('@')[0] || Math.random().toString(36).substr(2, 9);
+  const clientId = email || Math.random().toString(36).substr(2, 9);
   clients.set(clientId, ws);
   console.log(`Client connected: ${clientId}`);
   ws.send(JSON.stringify({ type: "your_id", clientId }));
@@ -128,7 +133,7 @@ function broadcastClients() {
   broadcast({ type: "client_list", clients: clientList });
 }
 
-function endVoting() {
+async function endVoting() {
   votingActive = false;
   broadcast({ type: "stop_voting" });
   
@@ -150,6 +155,17 @@ function endVoting() {
     if (clients.has(eliminatedClient)) {
       systemMessage = `Eliminating client: ${eliminatedClient} with ${maxVotes} votes.`;
       console.log(systemMessage);
+
+      try {
+        const userRef = doc(db, "AllPlayers", eliminatedClient);
+        await updateDoc(userRef, { isAlive: false });
+        console.log(JSON.stringify(userRef))
+
+        console.log(`Updated Firestore: ${eliminatedClient} isAlive = false`);
+        console.log(JSON.stringify(userRef))
+      } catch (error) {
+        console.error("Error updating Firestore:", error);
+      }
       clients.get(eliminatedClient).close();
       clients.delete(eliminatedClient);
       broadcastClients();
@@ -160,13 +176,8 @@ function endVoting() {
   }
 
   broadcast({ type: "message", text: systemMessage });
-  
-  for (const [clientId, clientSocket] of clients.entries()) {
-    clientSocket.close();
-  }
-  clients.clear();
-  broadcastClients();
 }
+
 
 const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => {
