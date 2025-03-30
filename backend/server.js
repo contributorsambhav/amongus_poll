@@ -176,6 +176,21 @@ async function endVoting() {
   }
 
   broadcast({ type: "message", text: systemMessage });
+
+  setTimeout(() => {
+    const clientIds = Array.from(clients.keys());
+    clientIds.forEach((clientId) => {
+      const ws = clients.get(clientId);
+      if (ws) {
+        ws.close();
+        clients.delete(clientId);
+      }
+    });
+  }, 5000);
+  
+
+  
+
 }
 
 

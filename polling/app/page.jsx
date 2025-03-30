@@ -220,10 +220,12 @@ export default function Home() {
                         }`}
                       >
                         {msg.senderId && (
-                          <>
-                            {msg.senderId}
+                          <p className={`text-[0.6rem]  ${
+                            msg.type === "sent" ? "text-green-100" : "text-neutral-400"
+                          }`}>
+                            {msg.senderId.split('@')[0]}
                             <br />
-                          </>
+                          </p>
                         )}
                         {msg.text}
                       </div>
