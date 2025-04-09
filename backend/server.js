@@ -158,7 +158,7 @@ async function endVoting() {
 
       try {
         const userRef = doc(db, "AllPlayers", eliminatedClient);
-        await updateDoc(userRef, { isAlive: false });
+        await updateDoc(userRef, { IsAlive: false });
         console.log(JSON.stringify(userRef))
 
         console.log(`Updated Firestore: ${eliminatedClient} isAlive = false`);
