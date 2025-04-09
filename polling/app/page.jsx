@@ -29,7 +29,14 @@ export default function Home() {
 
   const socket = useRef(null);
   const scrollAreaRef = useRef(null);
-
+  useEffect(() => {
+    connectToServer();
+  
+    return () => {
+      disconnectFromServer();
+    };
+  }, []);
+  
   const connectToServer = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const userEmail = urlParams.get("email")?.trim() || "test-client";
@@ -140,24 +147,7 @@ export default function Home() {
 
   return (
     <div className="container mx-auto max-w-md p-4">
-      <div className="flex justify-end mb-4">
-        {!connected ? (
-          <Button
-            onClick={connectToServer}
-            className="cursor-pointer h-7 text-xs bg-green-600 hover:opacity-90 hover:bg-green-600 transition-all duration-200 ease-out"
-          >
-            Connect
-          </Button>
-        ) : (
-          <Button
-            onClick={disconnectFromServer}
-            className="cursor-pointer h-7 text-white hover:text-white text-xs bg-red-600 hover:opacity-90 hover:bg-red-600 transition-all duration-200 ease-out"
-            variant="outline"
-          >
-            Disconnect
-          </Button>
-        )}
-      </div>
+    
 
       <div className="w-full border p-3 rounded-md">
         <div>
